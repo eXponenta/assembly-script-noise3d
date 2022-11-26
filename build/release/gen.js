@@ -18,16 +18,16 @@ async function instantiate(module, imports = {}) {
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf({
     createNoiseInstance(size) {
-      // assembly/noise/createNoiseInstance(u32) => assembly/noise/Noise
+      // assembly/noise/createNoiseInstance(u32) => assembly/impl/INoize/INoize
       return __liftInternref(exports.createNoiseInstance(size) >>> 0);
     },
     getAll(instance) {
-      // assembly/noise/getAll(assembly/noise/Noise) => ~lib/staticarray/StaticArray<f32>
+      // assembly/noise/getAll(assembly/impl/INoize/INoize) => ~lib/staticarray/StaticArray<f32>
       instance = __lowerInternref(instance) || __notnull();
       return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getAll(instance) >>> 0);
     },
     dispose(instance) {
-      // assembly/noise/dispose(assembly/noise/Noise) => void
+      // assembly/noise/dispose(assembly/impl/INoize/INoize) => void
       instance = __lowerInternref(instance) || __notnull();
       exports.dispose(instance);
     },

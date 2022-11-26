@@ -1,25 +1,47 @@
-export class Noise {
-    public maxSize: u32 = 0;
+import { INoize } from "./impl/INoize";
 
-    public buffer: StaticArray<f32>;
+// non simd
+import { BasicNoise as NoizeImpl } from "./impl/BasicNoize";
 
-    constructor(maxSize: u32) {
-        this.buffer = new StaticArray<f32>(maxSize);
-    }
 
-    getAll(): StaticArray<f32> {
-        return this.buffer;
-    }
+export function createNoiseInstance (size: u32): INoize {
+    return new NoizeImpl(size);
 }
 
-export function createNoiseInstance (size: u32): Noise {
-    return new Noise(size);
+export function generate(
+    instance: INoize,
+
+    posX: u32,
+    posY: u32,
+    posZ: u32,
+    stepX: u32, 
+    stepY: u32,
+    stepZ: u32,
+    countX: u32,
+    countY: u32,
+    countZ: u32
+): void {
+    instance.generate(
+        posX, posY, posZ,
+        stepX, stepY, stepZ,
+        countX, countY, countZ,
+    );
 }
 
-export function getAll(instance: Noise): StaticArray<f32> {
+export function generateFixed(
+    instance: INoize,
+
+    posX: u32, posY: u32, posZ: u32, step: u32, count: u32
+): void {
+    
+    instance.generateFixed(posX, posY, posZ, step, count);
+}
+
+export function getAll(instance: INoize): StaticArray<f32> {
+
     return instance.getAll();
 }
 
-export function dispose(instance: Noise): void {
+export function dispose(instance: INoize): void {
     //   
 }
