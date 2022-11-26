@@ -12,21 +12,6 @@ async function instantiate(module, imports = {}) {
           throw Error(`${message} in ${fileName}:${lineNumber}:${columnNumber}`);
         })();
       },
-      trace(message, n, a0, a1, a2, a3, a4) {
-        // ~lib/builtins/trace(~lib/string/String, i32?, f64?, f64?, f64?, f64?, f64?) => void
-        message = __liftString(message >>> 0);
-        (() => {
-          // @external.js
-          console.log(message, ...[a0, a1, a2, a3, a4].slice(0, n));
-        })();
-      },
-      seed() {
-        // ~lib/builtins/seed() => f64
-        return (() => {
-          // @external.js
-          return Date.now() * Math.random();
-        })();
-      },
     }),
   };
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);
@@ -46,6 +31,21 @@ async function instantiate(module, imports = {}) {
       instance = __lowerInternref(instance) || __notnull();
       exports.dispose(instance);
     },
+    MinBasic(data) {
+      // assembly/min/MinBasic/MinBasic(~lib/typedarray/Float32Array) => f32
+      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
+      return exports.MinBasic(data);
+    },
+    MinBits(data) {
+      // assembly/min/MinBits/MinBits(~lib/typedarray/Float32Array) => f32
+      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
+      return exports.MinBits(data);
+    },
+    MinSimd(data) {
+      // assembly/min/MinSimd/MinSimd(~lib/typedarray/Float32Array) => f32
+      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
+      return exports.MinSimd(data);
+    },
   }, exports);
   function __liftString(pointer) {
     if (!pointer) return null;
@@ -57,6 +57,20 @@ async function instantiate(module, imports = {}) {
       string = "";
     while (end - start > 1024) string += String.fromCharCode(...memoryU16.subarray(start, start += 1024));
     return string + String.fromCharCode(...memoryU16.subarray(start, end));
+  }
+  function __lowerTypedArray(constructor, id, align, values) {
+    if (values == null) return 0;
+    const
+      length = values.length,
+      buffer = exports.__pin(exports.__new(length << align, 1)) >>> 0,
+      header = exports.__new(12, id) >>> 0,
+      memoryU32 = new Uint32Array(memory.buffer);
+    memoryU32[header + 0 >>> 2] = buffer;
+    memoryU32[header + 4 >>> 2] = buffer;
+    memoryU32[header + 8 >>> 2] = length << align;
+    new constructor(memory.buffer, buffer, length).set(values);
+    exports.__unpin(buffer);
+    return header;
   }
   function __liftStaticArray(liftElement, align, pointer) {
     if (!pointer) return null;
@@ -105,7 +119,10 @@ export const {
   memory,
   createNoiseInstance,
   getAll,
-  dispose
+  dispose,
+  MinBasic,
+  MinBits,
+  MinSimd
 } = await (async url => instantiate(
   await (async () => {
     try { return await globalThis.WebAssembly.compileStreaming(globalThis.fetch(url)); }
