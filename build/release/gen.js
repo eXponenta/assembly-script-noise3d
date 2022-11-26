@@ -12,6 +12,21 @@ async function instantiate(module, imports = {}) {
           throw Error(`${message} in ${fileName}:${lineNumber}:${columnNumber}`);
         })();
       },
+      trace(message, n, a0, a1, a2, a3, a4) {
+        // ~lib/builtins/trace(~lib/string/String, i32?, f64?, f64?, f64?, f64?, f64?) => void
+        message = __liftString(message >>> 0);
+        (() => {
+          // @external.js
+          console.log(message, ...[a0, a1, a2, a3, a4].slice(0, n));
+        })();
+      },
+      seed() {
+        // ~lib/builtins/seed() => f64
+        return (() => {
+          // @external.js
+          return Date.now() * Math.random();
+        })();
+      },
     }),
   };
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);
