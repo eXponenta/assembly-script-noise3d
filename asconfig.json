@@ -1,0 +1,20 @@
+{
+  "targets": {
+    "debug": {
+      "outFile": "build/debug/gen.wasm",
+      "sourceMap": true,
+      "debug": true
+    },
+    "release": {
+      "outFile": "build/release/gen.wasm",
+      "sourceMap": true,
+      "optimizeLevel": 3,
+      "shrinkLevel": 0,
+      "converge": false,
+      "noAssert": false
+    }
+  },
+  "options": {
+    "bindings": "esm"
+  }
+}
