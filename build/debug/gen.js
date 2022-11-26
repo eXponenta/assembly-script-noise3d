@@ -17,9 +17,19 @@ async function instantiate(module, imports = {}) {
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf({
-    add(a, b) {
-      // assembly/index/add(i32, i32) => ~lib/staticarray/StaticArray<f64>
-      return __liftStaticArray(pointer => new Float64Array(memory.buffer)[pointer >>> 3], 3, exports.add(a, b) >>> 0);
+    createNoiseInstance(size) {
+      // assembly/noise/createNoiseInstance(u32) => assembly/noise/Noise
+      return __liftInternref(exports.createNoiseInstance(size) >>> 0);
+    },
+    getAll(instance) {
+      // assembly/noise/getAll(assembly/noise/Noise) => ~lib/staticarray/StaticArray<f32>
+      instance = __lowerInternref(instance) || __notnull();
+      return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getAll(instance) >>> 0);
+    },
+    dispose(instance) {
+      // assembly/noise/dispose(assembly/noise/Noise) => void
+      instance = __lowerInternref(instance) || __notnull();
+      exports.dispose(instance);
     },
   }, exports);
   function __liftString(pointer) {
@@ -41,11 +51,46 @@ async function instantiate(module, imports = {}) {
     for (let i = 0; i < length; ++i) values[i] = liftElement(pointer + (i << align >>> 0));
     return values;
   }
+  class Internref extends Number {}
+  const registry = new FinalizationRegistry(__release);
+  function __liftInternref(pointer) {
+    if (!pointer) return null;
+    const sentinel = new Internref(__retain(pointer));
+    registry.register(sentinel, pointer);
+    return sentinel;
+  }
+  function __lowerInternref(value) {
+    if (value == null) return 0;
+    if (value instanceof Internref) return value.valueOf();
+    throw TypeError("internref expected");
+  }
+  const refcounts = new Map();
+  function __retain(pointer) {
+    if (pointer) {
+      const refcount = refcounts.get(pointer);
+      if (refcount) refcounts.set(pointer, refcount + 1);
+      else refcounts.set(exports.__pin(pointer), 1);
+    }
+    return pointer;
+  }
+  function __release(pointer) {
+    if (pointer) {
+      const refcount = refcounts.get(pointer);
+      if (refcount === 1) exports.__unpin(pointer), refcounts.delete(pointer);
+      else if (refcount) refcounts.set(pointer, refcount - 1);
+      else throw Error(`invalid refcount '${refcount}' for reference '${pointer}'`);
+    }
+  }
+  function __notnull() {
+    throw TypeError("value must not be null");
+  }
   return adaptedExports;
 }
 export const {
   memory,
-  add
+  createNoiseInstance,
+  getAll,
+  dispose
 } = await (async url => instantiate(
   await (async () => {
     try { return await globalThis.WebAssembly.compileStreaming(globalThis.fetch(url)); }
