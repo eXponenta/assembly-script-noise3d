@@ -4,9 +4,9 @@ import {
     GRAD,
 } from './constants';
 
-const _vG3 = f32x4.splat(G3);
-const _vG3_2 = f32x4.splat(G3_2);
-const _vG3_3 = f32x4.splat(G3_3 - 1);
+const _vG3 = f32x4.splat(f32(G3));
+const _vG3_2 = f32x4.splat(f32(G3_2));
+const _vG3_3 = f32x4.splat(f32(G3_3) - 1);
 
 const _vijk1_0 = f32x4(1, 0, 0, 0);
 const _vijk2_0 = f32x4(1, 1, 0, 0);
@@ -49,11 +49,11 @@ const _vijk2_5 = f32x4(1, 1, 0, 0);
     const gradSize = <u32>sizeof<f32>();
 
     // Skew the input space to determine which simplex cell we're in
-    const s: f32 = (x + y + z) * F3; // Very nice and simple skew factor for 3D
+    const s: f32 = (x + y + z) * f32(F3); // Very nice and simple skew factor for 3D
     const i: f32 = floor(x + s);
     const j: f32 = floor(y + s);
     const k: f32 = floor(z + s);
-    const t: f32 = f32(i + j + k) * G3;
+    const t: f32 = f32(i + j + k) * f32(G3);
 
     const _vt = f32x4(t, t, t, 0)
     const _vxyz = f32x4(x, y, z, 0);

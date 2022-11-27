@@ -1,4 +1,4 @@
-import { initWithTable, getSampleAtPoint, getTable, getGrad, getSamplesAtBlock } from "../build/debug/gen.js";
+import { initWithTable, getSampleAtPoint, getTable, getGrad, getSamplesAtBlock } from "../build/release/gen.js";
 import { createNoise3D, buildPermutationTable } from 'simplex-noise'
 
 const RND_TABLE = buildPermutationTable(Math.random);
@@ -127,5 +127,5 @@ testWithSize(10);
 testWithSize(50);
 testWithSize(100);
 testWithSize(200);
-testWithSize(400);
+//testWithSize(400);
 

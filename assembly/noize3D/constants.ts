@@ -1,7 +1,7 @@
-export const F3: f32 = 1.0 / 3.0;
-export const G3: f32 = 1.0 / 6.0;
-export const G3_2: f32 = G3 * 2.0;
-export const G3_3: f32 = G3 * 3.0;
+export const F3: f64 = 1.0 / 3.0;
+export const G3: f64 = 1.0 / 6.0;
+export const G3_2: f64 = G3 * 2.0;
+export const G3_3: f64 = G3 * 3.0;
 
 export const grad3: StaticArray<f32> = [
     1, 1, 0,
