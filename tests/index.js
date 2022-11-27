@@ -1,4 +1,4 @@
-import { initWithTable, getSampleAtPoint, getTable, getGrad, getSamplesAtBlock } from "../build/release/gen.js";
+import { initWithTable, getSampleAtPoint, getPreallocPtr, getSamplesAtBlock, memory } from "../build/release/gen.js";
 import { createNoise3D, buildPermutationTable } from 'simplex-noise'
 
 const RND_TABLE = buildPermutationTable(Math.random);
@@ -89,8 +89,23 @@ const genChunkWasmExternal = (size) => {
     return data;
 }
 
+const liftF32 = (ptr) => {
+    const memoryU32 = new Uint32Array(memory.buffer);
+
+    return new Float32Array(
+        memory.buffer,
+        memoryU32[ptr + 4 >>> 2],
+        memoryU32[ptr + 8 >>> 2] / 4
+    )
+};
+
+const preAllocatedPtr = getPreallocPtr();
+const preallocData = liftF32(preAllocatedPtr);
+
 const genChunkJSWasm = (size) => {
-    return getSamplesAtBlock(0,0,0, size, size, size, 1, 0);
+    getSamplesAtBlock(0,0,0, size, size, size, 1, 0);
+
+    return preallocData;
 }
 
 const genChunkJSWasmSimd = (size) => {

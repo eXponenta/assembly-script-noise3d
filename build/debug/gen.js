@@ -43,9 +43,13 @@ async function instantiate(module, imports = {}) {
       return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getGrad() >>> 0);
     },
     getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) {
-      // assembly/noize3D/index/getSamplesAtBlock(i32, i32, i32, u32, u32, u32, f32, bool) => ~lib/typedarray/Float32Array
+      // assembly/noize3D/index/getSamplesAtBlock(i32, i32, i32, u32, u32, u32, f32, bool) => usize
       simd = simd ? 1 : 0;
-      return __liftTypedArray(Float32Array, exports.getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) >>> 0);
+      return exports.getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) >>> 0;
+    },
+    getPreallocPtr() {
+      // assembly/noize3D/index/getPreallocPtr() => usize
+      return exports.getPreallocPtr() >>> 0;
     },
   }, exports);
   function __liftString(pointer) {
@@ -58,15 +62,6 @@ async function instantiate(module, imports = {}) {
       string = "";
     while (end - start > 1024) string += String.fromCharCode(...memoryU16.subarray(start, start += 1024));
     return string + String.fromCharCode(...memoryU16.subarray(start, end));
-  }
-  function __liftTypedArray(constructor, pointer) {
-    if (!pointer) return null;
-    const memoryU32 = new Uint32Array(memory.buffer);
-    return new constructor(
-      memory.buffer,
-      memoryU32[pointer + 4 >>> 2],
-      memoryU32[pointer + 8 >>> 2] / constructor.BYTES_PER_ELEMENT
-    ).slice();
   }
   function __lowerTypedArray(constructor, id, align, values) {
     if (values == null) return 0;
@@ -102,7 +97,8 @@ export const {
   getSampleAtPoint,
   getTable,
   getGrad,
-  getSamplesAtBlock
+  getSamplesAtBlock,
+  getPreallocPtr
 } = await (async url => instantiate(
   await (async () => {
     try { return await globalThis.WebAssembly.compileStreaming(globalThis.fetch(url)); }

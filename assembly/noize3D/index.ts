@@ -1,6 +1,6 @@
 import { GRAD, initTableFromHost, initTables, TABLE } from "./constants";
 import { generate } from "./noize3D";
-import { generateSimd } from "./noize3Dsimd";
+//import { generateSimd } from "./noize3Dsimd";
 
 export function getTable(): StaticArray<u8> {
     return TABLE;
@@ -24,10 +24,11 @@ export function initWithTable(table: Uint8Array, ms: u32): void {
     preallocatedResult = new Float32Array(ms);
 }
 
+export function getPreallocPtr(): usize {
+    return changetype<usize>(preallocatedResult);
+}
+
 export function getSampleAtPoint(x: f32, y: f32, z: f32, simd: bool): f32 {
-    if(simd) {
-        return generateSimd(x, y, z);
-    }
     return generate(x, y, z);
 }
 
@@ -38,7 +39,7 @@ export function getSamplesAtBlock(
     scale: f32,
 
     simd: bool,
-): Float32Array {
+): usize {
     const count = sx * sy * sz;
 
     let res = preallocatedResult;
@@ -68,5 +69,5 @@ export function getSamplesAtBlock(
         }
     }
 
-    return res; //changetype<usize>(res);
+    return changetype<usize>(res);
 }

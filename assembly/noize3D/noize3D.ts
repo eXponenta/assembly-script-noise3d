@@ -2,7 +2,6 @@ import {
     F3, G3, G3_2, G3_3,
     TABLE,
     GRAD,
-    initTables,
 } from './constants';
 
 @inline export function generate(x: f64, y: f64, z: f64): f32 {
@@ -16,7 +15,7 @@ import {
     const i: f64 = floor(x + s);
     const j: f64 = floor(y + s);
     const k: f64 = floor(z + s);
-    const t: f64 = f64(i + j + k) * G3;
+    const t: f64 = (i + j + k) * G3;
     const X0: f64 = i - t; // Unskew the cell origin back to (x,y,z) space
     const Y0: f64 = j - t;
     const Z0: f64 = k - t;

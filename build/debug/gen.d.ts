@@ -40,6 +40,11 @@ export declare function getGrad(): ArrayLike<number>;
  * @param sz `u32`
  * @param scale `f32`
  * @param simd `bool`
- * @returns `~lib/typedarray/Float32Array`
+ * @returns `usize`
  */
-export declare function getSamplesAtBlock(ox: number, oy: number, oz: number, sx: number, sy: number, sz: number, scale: number, simd: boolean): Float32Array;
+export declare function getSamplesAtBlock(ox: number, oy: number, oz: number, sx: number, sy: number, sz: number, scale: number, simd: boolean): number;
+/**
+ * assembly/noize3D/index/getPreallocPtr
+ * @returns `usize`
+ */
+export declare function getPreallocPtr(): number;
