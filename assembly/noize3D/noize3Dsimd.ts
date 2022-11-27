@@ -84,7 +84,7 @@ const _vijk2_5 = f32x4(1, 1, 0, 0);
     const y0 = f32x4.extract_lane(_vxyz0, 1);
     const z0 = f32x4.extract_lane(_vxyz0, 2);
 
-    // trace('vxyz0:' + to_string_f32(_vxyz0));
+    //trace('vxyz0:' + to_string_f32(_vxyz0));
     
     if (x0 >= y0) {
         if (y0 >= z0) {

@@ -17,9 +17,13 @@ const table = buildPermutationTable(getFixedRandom());
 
 initWithTable(table, 200 * 200 * 200);
 
+const tmpF32 = new Float32Array([0]);
+
 const testError = (x, y, z) => {
     const a = getSampleAtPoint(x, y, z, 0);
-    const b = getSampleAtPoint_js(x, y, z);
+    const tmp =  getSampleAtPoint_js(x, y, z);
+    tmpF32[0] = tmp;
+    const b = tmpF32[0];
 
     const d = Math.abs(a - b);
 
