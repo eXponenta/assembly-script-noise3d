@@ -1,42 +1,45 @@
 /** Exported memory */
 export declare const memory: WebAssembly.Memory;
 /**
- * assembly/noise/createNoiseInstance
- * @param size `u32`
- * @returns `assembly/impl/INoize/INoize`
+ * assembly/noize3D/index/init
+ * @param ms `u32`
  */
-export declare function createNoiseInstance(size: number): __Internref4;
+export declare function init(ms: number): void;
 /**
- * assembly/noise/getAll
- * @param instance `assembly/impl/INoize/INoize`
+ * assembly/noize3D/index/initWithTable
+ * @param table `~lib/typedarray/Uint8Array`
+ * @param ms `u32`
+ */
+export declare function initWithTable(table: Uint8Array, ms: number): void;
+/**
+ * assembly/noize3D/index/getSampleAtPoint
+ * @param x `f32`
+ * @param y `f32`
+ * @param z `f32`
+ * @param simd `bool`
+ * @returns `f32`
+ */
+export declare function getSampleAtPoint(x: number, y: number, z: number, simd: boolean): number;
+/**
+ * assembly/noize3D/index/getTable
+ * @returns `~lib/staticarray/StaticArray<u8>`
+ */
+export declare function getTable(): ArrayLike<number>;
+/**
+ * assembly/noize3D/index/getGrad
  * @returns `~lib/staticarray/StaticArray<f32>`
  */
-export declare function getAll(instance: __Internref4): ArrayLike<number>;
+export declare function getGrad(): ArrayLike<number>;
 /**
- * assembly/noise/dispose
- * @param instance `assembly/impl/INoize/INoize`
+ * assembly/noize3D/index/getSamplesAtBlock
+ * @param ox `i32`
+ * @param oy `i32`
+ * @param oz `i32`
+ * @param sx `u32`
+ * @param sy `u32`
+ * @param sz `u32`
+ * @param scale `f32`
+ * @param simd `bool`
+ * @returns `~lib/typedarray/Float32Array`
  */
-export declare function dispose(instance: __Internref4): void;
-/**
- * assembly/min/MinBasic/MinBasic
- * @param data `~lib/typedarray/Float32Array`
- * @returns `f32`
- */
-export declare function MinBasic(data: Float32Array): number;
-/**
- * assembly/min/MinBits/MinBits
- * @param data `~lib/typedarray/Float32Array`
- * @returns `f32`
- */
-export declare function MinBits(data: Float32Array): number;
-/**
- * assembly/min/MinSimd/MinSimd
- * @param data `~lib/typedarray/Float32Array`
- * @returns `f32`
- */
-export declare function MinSimd(data: Float32Array): number;
-/** assembly/impl/INoize/INoize */
-declare class __Internref4 extends Number {
-  private __nominal4: symbol;
-  private __nominal0: symbol;
-}
+export declare function getSamplesAtBlock(ox: number, oy: number, oz: number, sx: number, sy: number, sz: number, scale: number, simd: boolean): Float32Array;

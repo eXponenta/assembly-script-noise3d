@@ -12,39 +12,40 @@ async function instantiate(module, imports = {}) {
           throw Error(`${message} in ${fileName}:${lineNumber}:${columnNumber}`);
         })();
       },
+      seed() {
+        // ~lib/builtins/seed() => f64
+        return (() => {
+          // @external.js
+          return Date.now() * Math.random();
+        })();
+      },
     }),
   };
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf({
-    createNoiseInstance(size) {
-      // assembly/noise/createNoiseInstance(u32) => assembly/impl/INoize/INoize
-      return __liftInternref(exports.createNoiseInstance(size) >>> 0);
+    initWithTable(table, ms) {
+      // assembly/noize3D/index/initWithTable(~lib/typedarray/Uint8Array, u32) => void
+      table = __lowerTypedArray(Uint8Array, 7, 0, table) || __notnull();
+      exports.initWithTable(table, ms);
     },
-    getAll(instance) {
-      // assembly/noise/getAll(assembly/impl/INoize/INoize) => ~lib/staticarray/StaticArray<f32>
-      instance = __lowerInternref(instance) || __notnull();
-      return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getAll(instance) >>> 0);
+    getSampleAtPoint(x, y, z, simd) {
+      // assembly/noize3D/index/getSampleAtPoint(f32, f32, f32, bool) => f32
+      simd = simd ? 1 : 0;
+      return exports.getSampleAtPoint(x, y, z, simd);
     },
-    dispose(instance) {
-      // assembly/noise/dispose(assembly/impl/INoize/INoize) => void
-      instance = __lowerInternref(instance) || __notnull();
-      exports.dispose(instance);
+    getTable() {
+      // assembly/noize3D/index/getTable() => ~lib/staticarray/StaticArray<u8>
+      return __liftStaticArray(pointer => new Uint8Array(memory.buffer)[pointer >>> 0], 0, exports.getTable() >>> 0);
     },
-    MinBasic(data) {
-      // assembly/min/MinBasic/MinBasic(~lib/typedarray/Float32Array) => f32
-      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
-      return exports.MinBasic(data);
+    getGrad() {
+      // assembly/noize3D/index/getGrad() => ~lib/staticarray/StaticArray<f32>
+      return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getGrad() >>> 0);
     },
-    MinBits(data) {
-      // assembly/min/MinBits/MinBits(~lib/typedarray/Float32Array) => f32
-      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
-      return exports.MinBits(data);
-    },
-    MinSimd(data) {
-      // assembly/min/MinSimd/MinSimd(~lib/typedarray/Float32Array) => f32
-      data = __lowerTypedArray(Float32Array, 7, 2, data) || __notnull();
-      return exports.MinSimd(data);
+    getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) {
+      // assembly/noize3D/index/getSamplesAtBlock(i32, i32, i32, u32, u32, u32, f32, bool) => ~lib/typedarray/Float32Array
+      simd = simd ? 1 : 0;
+      return __liftTypedArray(Float32Array, exports.getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) >>> 0);
     },
   }, exports);
   function __liftString(pointer) {
@@ -57,6 +58,15 @@ async function instantiate(module, imports = {}) {
       string = "";
     while (end - start > 1024) string += String.fromCharCode(...memoryU16.subarray(start, start += 1024));
     return string + String.fromCharCode(...memoryU16.subarray(start, end));
+  }
+  function __liftTypedArray(constructor, pointer) {
+    if (!pointer) return null;
+    const memoryU32 = new Uint32Array(memory.buffer);
+    return new constructor(
+      memory.buffer,
+      memoryU32[pointer + 4 >>> 2],
+      memoryU32[pointer + 8 >>> 2] / constructor.BYTES_PER_ELEMENT
+    ).slice();
   }
   function __lowerTypedArray(constructor, id, align, values) {
     if (values == null) return 0;
@@ -80,36 +90,6 @@ async function instantiate(module, imports = {}) {
     for (let i = 0; i < length; ++i) values[i] = liftElement(pointer + (i << align >>> 0));
     return values;
   }
-  class Internref extends Number {}
-  const registry = new FinalizationRegistry(__release);
-  function __liftInternref(pointer) {
-    if (!pointer) return null;
-    const sentinel = new Internref(__retain(pointer));
-    registry.register(sentinel, pointer);
-    return sentinel;
-  }
-  function __lowerInternref(value) {
-    if (value == null) return 0;
-    if (value instanceof Internref) return value.valueOf();
-    throw TypeError("internref expected");
-  }
-  const refcounts = new Map();
-  function __retain(pointer) {
-    if (pointer) {
-      const refcount = refcounts.get(pointer);
-      if (refcount) refcounts.set(pointer, refcount + 1);
-      else refcounts.set(exports.__pin(pointer), 1);
-    }
-    return pointer;
-  }
-  function __release(pointer) {
-    if (pointer) {
-      const refcount = refcounts.get(pointer);
-      if (refcount === 1) exports.__unpin(pointer), refcounts.delete(pointer);
-      else if (refcount) refcounts.set(pointer, refcount - 1);
-      else throw Error(`invalid refcount '${refcount}' for reference '${pointer}'`);
-    }
-  }
   function __notnull() {
     throw TypeError("value must not be null");
   }
@@ -117,12 +97,12 @@ async function instantiate(module, imports = {}) {
 }
 export const {
   memory,
-  createNoiseInstance,
-  getAll,
-  dispose,
-  MinBasic,
-  MinBits,
-  MinSimd
+  init,
+  initWithTable,
+  getSampleAtPoint,
+  getTable,
+  getGrad,
+  getSamplesAtBlock
 } = await (async url => instantiate(
   await (async () => {
     try { return await globalThis.WebAssembly.compileStreaming(globalThis.fetch(url)); }

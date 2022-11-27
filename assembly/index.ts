@@ -1,7 +1,5 @@
 export {
-	createNoiseInstance,
-	getAll,
-	dispose,
-} from './noise'
+	init, initWithTable, getSampleAtPoint, getTable, getGrad, getSamplesAtBlock,
+} from './noize3D'
 
-export * from './min/index';
+// export * from './min/index';
