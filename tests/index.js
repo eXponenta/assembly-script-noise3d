@@ -20,14 +20,14 @@ initWithTable(table, 200 * 200 * 200);
 const tmpF32 = new Float32Array([0]);
 
 const testError = (x, y, z) => {
-    const a = getSampleAtPoint(x, y, z, 0);
+    const a = getSampleAtPoint(x, y, z, 1);
     const tmp =  getSampleAtPoint_js(x, y, z);
     tmpF32[0] = tmp;
     const b = tmpF32[0];
 
     const d = Math.abs(a - b);
 
-    const MAX_D = 0.00001//Math.pow(1, -5);
+    const MAX_D = 0.0001//Math.pow(1, -5);
 
     console.log(`Pos: ${x}, ${y}, ${z}`, a, b, Math.floor(Math.log10(d)));
 
@@ -36,12 +36,14 @@ const testError = (x, y, z) => {
     }
 }
 
+testError(10, 3, 30);
+
 console.log('Test error:-------');
 for(let i = 0; i < 100; i ++) {
     testError(
-        50 - Math.random() * 100 | 0,
-        50 - Math.random() * 100 | 0,
-        50 - Math.random() * 100 | 0,
+        Math.random() * 100 | 0,
+        Math.random() * 100 | 0,
+        Math.random() * 100 | 0,
     )
 }
 
@@ -138,10 +140,13 @@ const testWithSize = (size) => {
 }
 
 
-testWithSize(10);
-testWithSize(50);
-testWithSize(100);
-testWithSize(200);
+//testWithSize(10);
+for(let i = 0; i < 100; i ++) {
+    testWithSize(50);
+}
+
+//testWithSize(100);
+//testWithSize(200);
 //testWithSize(400);
 
 

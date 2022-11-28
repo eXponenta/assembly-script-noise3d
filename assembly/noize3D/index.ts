@@ -1,5 +1,6 @@
 import { GRAD, initTableFromHost, initTables, TABLE } from "./constants";
 import { generate } from "./noize3D";
+import { generateSimd } from "./noize3Dsimd";
 //import { generateSimd } from "./noize3Dsimd";
 
 export function getTable(): StaticArray<u8> {
@@ -29,6 +30,9 @@ export function getPreallocPtr(): usize {
 }
 
 export function getSampleAtPoint(x: f32, y: f32, z: f32, simd: bool): f32 {
+    if (simd) {
+        return generateSimd(x, y, z);
+    }
     return generate(x, y, z);
 }
 

@@ -23,6 +23,8 @@ import {
     const x0: f64 = x - X0; // The x,y,z distances from the cell origin
     const y0: f64 = y - Y0;
     const z0: f64 = z - Z0;
+
+    // trace(x0.toString(10) + ',' + y0.toString(10) + ',' + z0.toString(10));
     // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
     // Determine which simplex we are in.
     let i1: i32 = 0;
@@ -105,19 +107,26 @@ import {
     const ii: i32 = i32(i) & 255;
     const jj: i32 = i32(j) & 255;
     const kk: i32 = i32(k) & 255;
-    // Calculate the contribution from the four corners
+
     let t0: f64 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+    let t1: f64 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+    let t2: f64 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+    let t3: f64 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+
+    // trace('t:' + t0.toString(10) + ',' + t1.toString(10) + ',' + t2.toString(10) + ',' + t3.toString(10));
+    // Calculate the contribution from the four corners
     if (t0 > 0) {
         const gi0 = ii + unchecked(TABLE[jj + TABLE[kk]]);
         const G0 = unchecked(GRAD[gi0 * 3]);
         const G1 = unchecked(GRAD[gi0 * 3 + 1]);
         const G2 = unchecked(GRAD[gi0 * 3 + 2]);
         
+        // trace("g0:" + G0.toString(10) + ',' + G1.toString(10) + ',' + G2.toString());
+
         t0 *= t0;
         n += t0 * t0 * (G0 * x0 + G1 * y0 + G2 * z0);
     }
 
-    let t1: f64 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
     if (t1 > 0) {
         const gi1 = ii + i1 + unchecked(TABLE[jj + j1 + TABLE[kk + k1]]);
         const G0 = unchecked(GRAD[gi1 * 3]);
@@ -128,7 +137,6 @@ import {
         n += t1 * t1 * (G0 * x1 + G1 * y1 + G2 * z1);
     }
 
-    let t2: f64 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
     if (t2 > 0) {
         const gi2 = ii + i2 + unchecked(TABLE[jj + j2 + TABLE[kk + k2]]);
         const G0 = unchecked(GRAD[gi2 * 3]);
@@ -138,8 +146,6 @@ import {
         t2 *= t2;
         n += t2 * t2 * (G0 * x2 + G1 * y2 + G2 * z2);
     }
-
-    let t3: f64 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
 
     if(t3 > 0.0) {
         const gi3 = ii + 1 + unchecked(TABLE[jj + 1 + TABLE[kk + 1]]);
