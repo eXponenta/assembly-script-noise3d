@@ -1,5 +1,9 @@
 export {
-	init, initWithTable, getSampleAtPoint, getTable, getGrad, getSamplesAtBlock, getPreallocPtr,
+	init,
+	initWithTable, 
+	getSampleAtPoint, 
+	getSamplesAtBlock, 
+	getPreallocPtr,
 } from './noize3D'
 
 // export * from './min/index';

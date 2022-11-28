@@ -34,14 +34,6 @@ async function instantiate(module, imports = {}) {
       simd = simd ? 1 : 0;
       return exports.getSampleAtPoint(x, y, z, simd);
     },
-    getTable() {
-      // assembly/noize3D/index/getTable() => ~lib/staticarray/StaticArray<u8>
-      return __liftStaticArray(pointer => new Uint8Array(memory.buffer)[pointer >>> 0], 0, exports.getTable() >>> 0);
-    },
-    getGrad() {
-      // assembly/noize3D/index/getGrad() => ~lib/staticarray/StaticArray<f32>
-      return __liftStaticArray(pointer => new Float32Array(memory.buffer)[pointer >>> 2], 2, exports.getGrad() >>> 0);
-    },
     getSamplesAtBlock(ox, oy, oz, sx, sy, sz, scale, simd) {
       // assembly/noize3D/index/getSamplesAtBlock(i32, i32, i32, u32, u32, u32, f32, bool) => usize
       simd = simd ? 1 : 0;
@@ -77,14 +69,6 @@ async function instantiate(module, imports = {}) {
     exports.__unpin(buffer);
     return header;
   }
-  function __liftStaticArray(liftElement, align, pointer) {
-    if (!pointer) return null;
-    const
-      length = new Uint32Array(memory.buffer)[pointer - 4 >>> 2] >>> align,
-      values = new Array(length);
-    for (let i = 0; i < length; ++i) values[i] = liftElement(pointer + (i << align >>> 0));
-    return values;
-  }
   function __notnull() {
     throw TypeError("value must not be null");
   }
@@ -95,8 +79,6 @@ export const {
   init,
   initWithTable,
   getSampleAtPoint,
-  getTable,
-  getGrad,
   getSamplesAtBlock,
   getPreallocPtr
 } = await (async url => instantiate(

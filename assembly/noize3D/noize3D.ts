@@ -5,10 +5,11 @@ import {
 } from './constants';
 
 @inline export function generate(x: f64, y: f64, z: f64): f32 {
-    let n0: f64 = 0;
-    let n1: f64 = 0;
-    let n2: f64 = 0;
-    let n3: f64 = 0; // Noise contributions from the four corners
+    let n: f64 = 0;
+    //let n0: f64 = 0;
+    //let n1: f64 = 0;
+    //let n2: f64 = 0;
+    //let n3: f64 = 0; // Noise contributions from the four corners
 
     // Skew the input space to determine which simplex cell we're in
     const s: f64 = (x + y + z) * F3; // Very nice and simple skew factor for 3D
@@ -84,6 +85,7 @@ import {
             //k2 = 0;
         } // Y X Z order
     }
+
     // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
     // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
     // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
@@ -100,62 +102,55 @@ import {
     const y3: f64 = y0 - 1.0 + G3_3;
     const z3: f64 = z0 - 1.0 + G3_3;
     // Work out the hashed gradient indices of the four simplex corners
-    const ii: u32 = u32(i) & 255;
-    const jj: u32 = u32(j) & 255;
-    const kk: u32 = u32(k) & 255;
+    const ii: i32 = i32(i) & 255;
+    const jj: i32 = i32(j) & 255;
+    const kk: i32 = i32(k) & 255;
     // Calculate the contribution from the four corners
     let t0: f64 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
-    if (t0 < 0) {
-        n0 = 0.0;
-    } else {
+    if (t0 > 0) {
         const gi0 = ii + unchecked(TABLE[jj + TABLE[kk]]);
         const G0 = unchecked(GRAD[gi0 * 3]);
         const G1 = unchecked(GRAD[gi0 * 3 + 1]);
         const G2 = unchecked(GRAD[gi0 * 3 + 2]);
         
         t0 *= t0;
-        n0 = t0 * t0 * (G0 * x0 + G1 * y0 + G2 * z0);
+        n += t0 * t0 * (G0 * x0 + G1 * y0 + G2 * z0);
     }
 
     let t1: f64 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
-    if (t1 < 0) {
-        n1 = 0.0;
-    } else {
+    if (t1 > 0) {
         const gi1 = ii + i1 + unchecked(TABLE[jj + j1 + TABLE[kk + k1]]);
         const G0 = unchecked(GRAD[gi1 * 3]);
         const G1 = unchecked(GRAD[gi1 * 3 + 1]);
         const G2 = unchecked(GRAD[gi1 * 3 + 2]);
 
         t1 *= t1;
-        n1 = t1 * t1 * (G0 * x1 + G1 * y1 + G2 * z1);
+        n += t1 * t1 * (G0 * x1 + G1 * y1 + G2 * z1);
     }
 
     let t2: f64 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
-    if (t2 < 0) {
-        n2 = 0.0;
-    } else {
+    if (t2 > 0) {
         const gi2 = ii + i2 + unchecked(TABLE[jj + j2 + TABLE[kk + k2]]);
         const G0 = unchecked(GRAD[gi2 * 3]);
         const G1 = unchecked(GRAD[gi2 * 3 + 1]);
         const G2 = unchecked(GRAD[gi2 * 3 + 2]);
 
         t2 *= t2;
-        n2 = t2 * t2 * (G0 * x2 + G1 * y2 + G2 * z2);
+        n += t2 * t2 * (G0 * x2 + G1 * y2 + G2 * z2);
     }
 
     let t3: f64 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
-    if (t3 < 0) {
-        n3 = 0.0;
-    } else {
+
+    if(t3 > 0.0) {
         const gi3 = ii + 1 + unchecked(TABLE[jj + 1 + TABLE[kk + 1]]);
         const G0 = unchecked(GRAD[gi3 * 3]);
         const G1 = unchecked(GRAD[gi3 * 3 + 1]);
         const G2 = unchecked(GRAD[gi3 * 3 + 2]);
 
         t3 *= t3;
-        n3 = t3 * t3 * (G0 * x3 + G1 * y3 + G2 * z3);
+        n += t3 * t3 * (G0 * x3 + G1 * y3 + G2 * z3);
     }
     // Add contributions from each corner to get the final noise value.
     // The result is scaled to stay just inside [-1,1]
-    return f32(32.0 * (n0 + n1 + n2 + n3));
+    return f32(32.0 * n);//(n0 + n1 + n2 + n3));
 };

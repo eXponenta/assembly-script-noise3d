@@ -27,7 +27,7 @@ const testError = (x, y, z) => {
 
     const d = Math.abs(a - b);
 
-    const MAX_D = Math.pow(1, -5);
+    const MAX_D = 0.00001//Math.pow(1, -5);
 
     console.log(`Pos: ${x}, ${y}, ${z}`, a, b, Math.floor(Math.log10(d)));
 
@@ -39,9 +39,9 @@ const testError = (x, y, z) => {
 console.log('Test error:-------');
 for(let i = 0; i < 100; i ++) {
     testError(
-        Math.random() * 100 | 0,
-        Math.random() * 100 | 0,
-        Math.random() * 100 | 0,
+        50 - Math.random() * 100 | 0,
+        50 - Math.random() * 100 | 0,
+        50 - Math.random() * 100 | 0,
     )
 }
 
@@ -65,7 +65,7 @@ const genChunkJS = (size) => {
     for(let x = 0; x < size; x ++) {
         for(let y = 0; y < size; y ++) {
             for(let z = 0; z < size; z ++) {
-                data[index ++] = getSampleAtPoint_js(x, y, z);
+                data[index ++] = getSampleAtPoint_js(x - size, y, z);
             }
         }     
     }
@@ -81,7 +81,7 @@ const genChunkWasmExternal = (size) => {
     for(let x = 0; x < size; x ++) {
         for(let y = 0; y < size; y ++) {
             for(let z = 0; z < size; z ++) {
-                data[index ++] = getSampleAtPoint(x, y, z, 0);
+                data[index ++] = getSampleAtPoint(x - size, y, z, 0);
             }
         }     
     }
@@ -103,13 +103,13 @@ const preAllocatedPtr = getPreallocPtr();
 const preallocData = liftF32(preAllocatedPtr);
 
 const genChunkJSWasm = (size) => {
-    getSamplesAtBlock(0,0,0, size, size, size, 1, 0);
+    getSamplesAtBlock(-size,0,0, size, size, size, 1, 0);
 
     return preallocData;
 }
 
 const genChunkJSWasmSimd = (size) => {
-    return getSamplesAtBlock(0,0,0, size, size, size, 1, 1);
+    return getSamplesAtBlock(-size,0,0, size, size, size, 1, 1);
 }
 
 const tests = {
@@ -143,4 +143,5 @@ testWithSize(50);
 testWithSize(100);
 testWithSize(200);
 //testWithSize(400);
+
 

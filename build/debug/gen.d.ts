@@ -21,16 +21,6 @@ export declare function initWithTable(table: Uint8Array, ms: number): void;
  */
 export declare function getSampleAtPoint(x: number, y: number, z: number, simd: boolean): number;
 /**
- * assembly/noize3D/index/getTable
- * @returns `~lib/staticarray/StaticArray<u8>`
- */
-export declare function getTable(): ArrayLike<number>;
-/**
- * assembly/noize3D/index/getGrad
- * @returns `~lib/staticarray/StaticArray<f32>`
- */
-export declare function getGrad(): ArrayLike<number>;
-/**
  * assembly/noize3D/index/getSamplesAtBlock
  * @param ox `i32`
  * @param oy `i32`
