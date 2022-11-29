@@ -30,10 +30,15 @@ export function getPreallocPtr(): usize {
 }
 
 export function getSampleAtPoint(x: f32, y: f32, z: f32, simd: bool): f32 {
+    const res = new Float32Array(1);
+
     if (simd) {
-        return generateSimd(x, y, z);
+        generateSimd(x, y, z, 1, 1, res, 0);
+    } else {
+        generate(x, y, z, 1, 1, res, 0);
     }
-    return generate(x, y, z);
+
+    return res[0];
 }
 
 export function getSamplesAtBlock(
@@ -51,24 +56,34 @@ export function getSamplesAtBlock(
         res = new Float32Array(count);
     }
 
-    let x: u32 = 0;
     let y: u32 = 0;
     let z: u32 = 0;
     let index: u32 = 0;
 
-    for(z = 0; z < sz; z++ ) {
+    for(z = 0; z < sz; z ++) {
         for(y = 0; y < sy; y ++) {
-            for(x = 0; x < sx; x ++) {
-                const v = getSampleAtPoint( 
-                    f32(x + ox) * scale,
+            if (simd) {
+                generateSimd(
+                    f32(ox) * scale,
                     f32(y + oy) * scale,
                     f32(z + oz) * scale,
-                    simd
+                    scale,  
+                    sx, 
+                    res, index
                 );
-                
-                unchecked(res[index] = v);
 
-                index ++;
+                index += sx;
+            } else {
+                generate(
+                    f32(ox) * scale,
+                    f32(y + oy) * scale,
+                    f32(z + oz) * scale,
+                    scale,  
+                    sx, 
+                    res, index
+                );
+
+                index += sx;
             }
         }
     }
