@@ -1,4 +1,4 @@
-import { initWithTable, getSampleAtPoint, getPreallocPtr, getSamplesAtBlock, memory } from "../build/debug/gen.js";
+import { initWithTable, getSampleAtPoint, getPreallocPtr, getSamplesAtBlock, memory } from "../build/release/gen.js";
 import { createNoise3D, buildPermutationTable } from 'simplex-noise'
 import { createNoise3DOpt } from './optimizedNoise.js';
 
@@ -193,8 +193,8 @@ const testWithSize = (size) => {
 
 
 //testWithSize(10);
-for(let i = 0; i < 100; i ++) {
-    //testWithSize(50);
+for(let i = 0; i < 10; i ++) {
+    testWithSize(50);
 }
 
 //testWithSize(100);
