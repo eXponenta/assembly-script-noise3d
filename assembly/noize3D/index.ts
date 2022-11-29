@@ -56,9 +56,9 @@ export function getSamplesAtBlock(
     let z: u32 = 0;
     let index: u32 = 0;
 
-    for(x = 0; x < sx; x ++) {
+    for(z = 0; z < sz; z++ ) {
         for(y = 0; y < sy; y ++) {
-            for(z = 0; z < sz; z++ ) {
+            for(x = 0; x < sx; x ++) {
                 const v = getSampleAtPoint( 
                     f32(x + ox) * scale,
                     f32(y + oy) * scale,
