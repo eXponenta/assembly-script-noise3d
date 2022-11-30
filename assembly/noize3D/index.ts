@@ -78,8 +78,8 @@ export function getSamplesAtBlock(
                     f32(ox) * scale,
                     f32(y + oy) * scale,
                     f32(z + oz) * scale,
-                    scale,  
-                    sx, 
+                    f32(scale),
+                    sx,
                     res, index
                 );
 

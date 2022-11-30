@@ -6,7 +6,7 @@ import {
 
 @inline export function generate(xStart: f64, y: f64, z: f64, xStep: f64, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
     for (let ind: u32 = 0; ind < xSize; ind++) {
-        const x: f64 = f64(xStart + xStep * ind);
+        const x: f64 = xStart + xStep * ind;
         let n: f64 = 0;
         //let n0: f64 = 0;
         //let n1: f64 = 0;
