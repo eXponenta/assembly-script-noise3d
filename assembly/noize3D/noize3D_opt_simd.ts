@@ -39,7 +39,7 @@ const _vijk2_5 = f32x4(1, 1, 0, 0);
     return f32x4.extract_lane(v, 0) + f32x4.extract_lane(v, 1) + f32x4.extract_lane(v, 2)
 }
 
-@inline export function generateSimd(xStart: f32, y: f32, z: f32, xStep: f32, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
+@inline export function generateSimdOpt(xStart: f32, y: f32, z: f32, xStep: f32, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
     for (let ind: u32 = 0; ind < xSize; ind++) {
         const x: f32 = xStart + xStep * f32(ind);
 
