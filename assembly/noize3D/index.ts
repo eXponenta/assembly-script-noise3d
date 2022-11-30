@@ -1,7 +1,8 @@
 import { GRAD, initTableFromHost, initTables, TABLE } from "./constants";
+import { generateOpt } from "./noize3D_opt";
+import { generateOptSimd } from "./noize3D_opt_simd";
 import { generate } from "./noize3D";
 import { generateSimd } from "./noize3Dsimd";
-//import { generateSimd } from "./noize3Dsimd";
 
 export function getTable(): StaticArray<u8> {
     return TABLE;
@@ -33,9 +34,9 @@ export function getSampleAtPoint(x: f32, y: f32, z: f32, simd: bool): f32 {
     const res = new Float32Array(1);
 
     if (simd) {
-        generateSimd(x, y, z, 1, 1, res, 0);
+        generateOptSimd(x, y, z, 1, 1, res, 0);
     } else {
-        generate(x, y, z, 1, 1, res, 0);
+        generateOpt(x, y, z, 1, 1, res, 0);
     }
 
     return res[0];
@@ -56,29 +57,61 @@ export function getSamplesAtBlock(
         res = new Float32Array(count);
     }
 
+    let x: u32 = 0;
     let y: u32 = 0;
     let z: u32 = 0;
     let index: u32 = 0;
 
     for(z = 0; z < sz; z ++) {
         for(y = 0; y < sy; y ++) {
-            if (simd) {
-                generateSimd(
-                    f32(ox) * scale,
-                    f32(y + oy) * scale,
-                    f32(z + oz) * scale,
-                    scale,  
-                    sx, 
-                    res, index
-                );
+            for(x = 0; x < sx; x ++) {
+                if (simd) {
+                    res[index++] = generateSimd(
+                        f32(x + ox) * scale,
+                        f32(y + oy) * scale,
+                        f32(z + oz) * scale,
+                    );
+                } else {
+                    res[index++] = generate(
+                        f32(x + ox) * scale,
+                        f32(y + oy) * scale,
+                        f32(z + oz) * scale,
+                    );
+                }
+            }
+        }
+    }
 
-                index += sx;
-            } else {
-                generate(
+    return changetype<usize>(res);
+}
+
+export function getSamplesAtBlockOpt(
+    ox: i32, oy: i32, oz: i32,
+    sx: u32, sy: u32, sz: u32,
+
+    scale: f32,
+
+    simd: bool,
+): usize {
+    const count = sx * sy * sz;
+
+    let res = preallocatedResult;
+    if (preallocatedResult.length <= i32(count)) {
+        res = new Float32Array(count);
+    }
+
+    let y: u32 = 0;
+    let z: u32 = 0;
+    let index: u32 = 0;
+
+    /*if (simd) {
+        for (z = 0; z < sz; z++) {
+            for (y = 0; y < sy; y++) {
+                generateOptSimd(
                     f32(ox) * scale,
                     f32(y + oy) * scale,
                     f32(z + oz) * scale,
-                    f32(scale),
+                    scale,
                     sx,
                     res, index
                 );
@@ -86,7 +119,22 @@ export function getSamplesAtBlock(
                 index += sx;
             }
         }
-    }
+    } else {*/
+        for (z = 0; z < sz; z++) {
+            for (y = 0; y < sy; y++) {
+                generateOpt(
+                    f32(ox) * scale,
+                    f32(y + oy) * scale,
+                    f32(z + oz) * scale,
+                    scale,
+                    sx,
+                    res, index
+                );
+
+                index += sx;
+            }
+        }
+    //}
 
     return changetype<usize>(res);
 }

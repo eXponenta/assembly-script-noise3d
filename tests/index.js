@@ -1,4 +1,4 @@
-import { initWithTable, getSampleAtPoint, getPreallocPtr, getSamplesAtBlock, memory } from "../build/release/gen.js";
+import { initWithTable, getSampleAtPoint, getPreallocPtr, getSamplesAtBlock, getSamplesAtBlockOpt, memory } from "../build/release/gen.js";
 import { createNoise3D, buildPermutationTable } from 'simplex-noise'
 import { createNoise3DOpt } from './optimizedNoise.js';
 
@@ -165,12 +165,24 @@ const genChunkJSWasmSimd = (size) => {
     return getSamplesAtBlock(-size,0,0, size, size, size, scale, 1);
 }
 
+const genChunkJSOptWasm = (size) => {
+    getSamplesAtBlockOpt(-size,0,0, size, size, size, scale, 0);
+
+    return preallocData;
+}
+
+const genChunkJSOptWasmSimd = (size) => {
+    return getSamplesAtBlockOpt(-size,0,0, size, size, size, scale, 1);
+}
+
 const tests = {
     genChunkJS,
     genChunkJSOpt,
     genChunkWasmExternal,
     genChunkJSWasm,
     genChunkJSWasmSimd,
+    genChunkJSOptWasm,
+    genChunkJSOptWasmSimd,
 };
 
 

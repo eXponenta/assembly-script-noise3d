@@ -39,17 +39,17 @@ const _vijk2_5 = f32x4(1, 1, 0, 0);
     return f32x4.extract_lane(v, 0) + f32x4.extract_lane(v, 1) + f32x4.extract_lane(v, 2)
 }
 
-@inline export function generateSimdOpt(xStart: f32, y: f32, z: f32, xStep: f32, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
-    for (let ind: u32 = 0; ind < xSize; ind++) {
+@inline export function generateOptSimd(xStart: f32, y: f32, z: f32, xStep: f32, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
+    const gradPtr = changetype<usize>(GRAD);
+    const gradSize = <u32>sizeof<f32>();
+
+    for (let ind: u32 = 0; ind < xSize; ++ind) {
         const x: f32 = xStart + xStep * f32(ind);
 
         let n0: f32 = 0;
         let n1: f32 = 0;
         let n2: f32 = 0;
         let n3: f32 = 0; // Noise contributions from the four corners
-
-        const gradPtr = changetype<usize>(GRAD);
-        const gradSize = <u32>sizeof<f32>();
 
         // Skew the input space to determine which simplex cell we're in
         const s: f32 = f32((x + y + z) * F3); // Very nice and simple skew factor for 3D
@@ -270,7 +270,7 @@ const _vijk2_5 = f32x4(1, 1, 0, 0);
         }
         // Add contributions from each corner to get the final noise value.
         // The result is scaled to stay just inside [-1,1]
-        unchecked(resultArray[resultOffset++] = 32.0 * (n0 + n1 + n2 + n3));
+        unchecked(resultArray[resultOffset + ind] = 32.0 * (n0 + n1 + n2 + n3));
     }
 
     return resultOffset;

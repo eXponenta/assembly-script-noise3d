@@ -4,9 +4,9 @@ import {
     GRAD,
 } from './constants';
 
-@inline export function generate(xStart: f64, y: f64, z: f64, xStep: f64, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
-    for (let ind: u32 = 0; ind < xSize; ind++) {
-        const x: f64 = xStart + xStep * ind;
+@inline export function generateOpt(xStart: f64, y: f64, z: f64, xStep: f64, xSize: u32, resultArray: Float32Array, resultOffset: u32): u32 {
+    for (let ind: u32 = 0; ind < xSize; ++ind) {
+        let x: f64 = xStart + xStep * ind;
         let n: f64 = 0;
         //let n0: f64 = 0;
         //let n1: f64 = 0;
@@ -162,7 +162,7 @@ import {
         // The result is scaled to stay just inside [-1,1]
         // Add contributions from each corner to get the final noise value.
         // The result is scaled to stay just inside [-1,1]
-        unchecked(resultArray[resultOffset++] = f32(32.0 * n));
+        unchecked(resultArray[resultOffset + ind] = f32(32.0 * n));
     }
 
     return resultOffset;

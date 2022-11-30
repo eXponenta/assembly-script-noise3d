@@ -2,7 +2,8 @@ export {
 	init,
 	initWithTable, 
 	getSampleAtPoint, 
-	getSamplesAtBlock, 
+	getSamplesAtBlock,
+	getSamplesAtBlockOpt,
 	getPreallocPtr,
 } from './noize3D'
 
